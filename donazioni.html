@@ -5,85 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Donazioni EURa</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 40px 20px; background-color: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 40px 20px; background-color: #f8f9fa; color: #333; }
         .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        img { width: 100px; margin-bottom: 20px; border-radius: 50%; }
-        input { width: 80%; padding: 12px; margin: 20px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 18px; text-align: center; }
-        .btn-donate { background-color: #8247e5; color: white; padding: 15px 30px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; width: 85%; font-size: 16px; }
-        .back-link { display: block; margin-bottom: 20px; color: #666; text-decoration: none; font-weight: bold; }
-        .status { margin-top: 15px; font-size: 14px; color: #28a745; display: none; }
+        img { width: 100px; height: 100px; margin-bottom: 20px; border-radius: 50%; }
+        
+        /* Stile Contatore */
+        .counter-box { background: #f0f0f0; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e0e0e0; }
+        .counter-label { font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        .counter-value { font-size: 28px; color: #8247e5; font-weight: bold; display: block; margin-top: 5px; }
+
+        input { width: 85%; padding: 15px; margin: 10px 0 20px 0; border: 2px solid #ddd; border-radius: 12px; font-size: 18px; text-align: center; outline: none; transition: border-color 0.3s; }
+        input:focus { border-color: #8247e5; }
+        
+        .btn-donate { background-color: #8247e5; color: white; padding: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; width: 93%; font-size: 16px; transition: transform 0.2s; }
+        .btn-donate:active { transform: scale(0.98); }
+        
+        .back-link { display: inline-block; margin-bottom: 25px; color: #666; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .back-link:hover { color: #8247e5; }
+
+        /* Messaggio Successo */
+        #statusMsg { display: none; margin-top: 25px; padding: 15px; background: #d4edda; color: #155724; border-radius: 12px; border: 1px solid #c3e6cb; font-size: 14px; }
+        #txLink { color: #155724; font-weight: bold; text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="index.html" class="back-link">← Torna alla Home</a>
-    <img src="..." alt="Logo">
-    <h1>Supporta il Progetto</h1>
-
-    <div style="background: #f0f0f0; padding: 15px; ...">
-        ...
+    <a href="index.html" class="back-link">← Torna alla Home</a><br>
+    
+    <img src="https://lelle-creator.github.io/eura-token/eura-logo.png" alt="EURa Logo">
+    <h1>Supporta EURa</h1>
+    
+    <div class="counter-box">
+        <span class="counter-label">Totale donazioni ricevute</span>
+        <span id="totalRaised" class="counter-value">Caricamento...</span>
     </div>
 
-    <input type="number" id="amountInput" ...>
-    <button id="donateBtn">Invia Donazione</button>
+    <p>Inserisci la quantità da donare:</p>
+    <input type="number" id="amountInput" placeholder="Esempio: 50" min="0.1" step="0.1">
+    
+    <button class="btn-donate" id="donateBtn">Invia Donazione</button>
 
-    <div id="statusMsg" style="display:none; ...">
-        ...
+    <div id="statusMsg">
+        🎉 <strong>Grazie di cuore!</strong><br>
+        La tua donazione è in fase di elaborazione.<br>
+        <a id="txLink" href="#" target="_blank">Controlla la transazione su Polygonscan</a>
     </div>
 </div>
 
 <script>
-const contractAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22';
-const myWallet = '0xE3B332d207a06C7c676D44294b98E5d7F704241A';
+    const contractAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22';
+    const myWallet = '0xE3B332d207a06C7c676D44294b98E5d7F704241A';
 
-// Funzione per leggere il totale raccolto
-async function updateCounter() {
-    if (window.ethereum) {
-        try {
-            // Chiamata 'eth_call' per leggere il saldo (balanceOf) senza pagare gas
-            const data = '0x70a08231' + '000000000000000000000000' + myWallet.replace('0x', '').toLowerCase();
-            const balanceHex = await window.ethereum.request({
-                method: 'eth_call',
-                params: [{ to: contractAddress, data: data }, 'latest']
-            });
-            
-            // Converte da esadecimale e toglie i 18 decimali
-            const balance = Number(BigInt(balanceHex)) / Math.pow(10, 18);
-            document.getElementById('totalRaised').innerText = balance.toLocaleString() + ' EURa';
-        } catch (e) {
-            document.getElementById('totalRaised').innerText = 'Connetti Wallet';
+    // Funzione per leggere il saldo del tuo wallet (Contatore)
+    async function updateCounter() {
+        if (window.ethereum) {
+            try {
+                // Funzione balanceOf(address) -> 0x70a08231 + indirizzo imbottito
+                const data = '0x70a08231000000000000000000000000' + myWallet.replace('0x', '').toLowerCase();
+                const balanceHex = await window.ethereum.request({
+                    method: 'eth_call',
+                    params: [{ to: contractAddress, data: data }, 'latest']
+                });
+                
+                // Conversione da Wei (18 decimali)
+                const balance = Number(BigInt(balanceHex)) / Math.pow(10, 18);
+                document.getElementById('totalRaised').innerText = balance.toLocaleString() + ' EURa';
+            } catch (e) {
+                document.getElementById('totalRaised').innerText = 'Connetti Wallet';
+            }
+        } else {
+            document.getElementById('totalRaised').innerText = 'Installa MetaMask';
         }
     }
-}
 
-// Aggiorna il contatore all'avvio
-updateCounter();
+    // Avvia il contatore all'apertura
+    updateCounter();
 
-document.getElementById('donateBtn').addEventListener('click', async () => {
-    const amount = document.getElementById('amountInput').value;
-    if (!amount || amount <= 0) return alert("Inserisci un importo");
+    document.getElementById('donateBtn').addEventListener('click', async () => {
+        const amount = document.getElementById('amountInput').value;
 
-    if (window.ethereum) {
-        try {
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            const hexAmount = BigInt(amount * Math.pow(10, 18)).toString(16).padStart(64, '0');
-            const data = '0xa9059cbb' + '000000000000000000000000' + myWallet.replace('0x', '').toLowerCase() + hexAmount;
+        if (!amount || amount <= 0) {
+            alert("Per favore, inserisci un importo valido.");
+            return;
+        }
 
-            const txHash = await window.ethereum.request({
-                method: 'eth_sendTransaction',
-                params: [{ to: contractAddress, from: accounts[0], data: data }],
-            });
+        if (window.ethereum) {
+            try {
+                // Connessione account
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const userWallet = accounts[0];
 
-            // Mostra il ringraziamento e il link
-            document.getElementById('statusMsg').style.display = 'block';
-            document.getElementById('txLink').href = `https://amoy.polygonscan.com/tx/${txHash}`;
-            
-            // Aggiorna il contatore dopo un po' per dare tempo alla blockchain
-            setTimeout(updateCounter, 5000);
-        } catch (error) { alert("Errore: " + error.message); }
-    }
-});
+                // Conversione importo per lo smart contract
+                const hexAmount = BigInt(amount * Math.pow(10, 18)).toString(16).padStart(64, '0');
+                
+                // Funzione transfer(address,uint256)
+                const data = '0xa9059cbb' + 
+                             '000000000000000000000000' + myWallet.replace('0x', '').toLowerCase() + 
+                             hexAmount;
+
+                const txHash = await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [{
+                        to: contractAddress,
+                        from: userWallet,
+                        data: data,
+                    }],
+                });
+
+                // Mostra messaggio di successo
+                document.getElementById('statusMsg').style.display = 'block';
+                document.getElementById('txLink').href = `https://amoy.polygonscan.com/tx/${txHash}`;
+                
+                // Aggiorna il contatore dopo 5 secondi
+                setTimeout(updateCounter, 5000);
+
+            } catch (error) {
+                alert("Errore: " + error.message);
+            }
+        } else {
+            alert("Usa il browser di MetaMask per donare!");
+        }
+    });
 </script>
 
 </body>
