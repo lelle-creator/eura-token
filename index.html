@@ -1,18 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EURa Token Portal</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 40px 20px; background-color: #f8f9fa; color: #333; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        img { width: 120px; height: 120px; margin-bottom: 20px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        h1 { margin-bottom: 10px; color: #1a1a1a; }
+        p { color: #666; margin-bottom: 30px; line-height: 1.5; }
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+        button, .btn-link { 
+            padding: 15px 25px; font-size: 16px; font-weight: bold; cursor: pointer; 
+            border: none; border-radius: 12px; transition: transform 0.2s, opacity 0.2s;
+            text-decoration: none; display: inline-block;
+        }
+        button:active { transform: scale(0.98); }
+        .btn-token { background-color: #8247e5; color: white; } /* Colore Polygon */
+        .btn-network { background-color: #2bbdf7; color: white; }
+        .btn-mobile { background-color: #f6851b; color: white; } /* Colore MetaMask */
+        .footer { margin-top: 30px; font-size: 12px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="https://lelle-creator.github.io/eura-token/logo.png" alt="EURa Logo">
+    
+    <h1>Portale EURa</h1>
+    <p>Configura il tuo wallet per visualizzare e gestire i tuoi token EURa sulla rete Amoy.</p>
+
+    <div class="btn-group">
+        <button class="btn-network" id="addNetwork">1. Configura Rete Amoy</button>
+
+        <button class="btn-token" id="addToken">2. Aggiungi EURa al Wallet</button>
+
+        <a href="https://metamask.app.link/dapp/lelle-creator.github.io/eura-token/" class="btn-link btn-mobile">
+            Sei su Smartphone? Clicca qui
+        </a>
+    </div>
+
+    <div class="footer">
+        Contract: 0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22
+    </div>
+</div>
+
 <script>
     const tokenAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22';
     const tokenSymbol = 'EURA';
     const tokenDecimals = 18;
-    const tokenImage = 'https://lelle-creator.github.io/eura-token/logo.png'; 
+    const tokenImage = 'https://lelle-creator.github.io/eura-token/logo.png';
 
-    document.getElementById('addToken').addEventListener('click', async () => {
-        if (typeof window.ethereum !== 'undefined') {
+    // Funzione per aggiungere la rete Amoy
+    document.getElementById('addNetwork').addEventListener('click', async () => {
+        if (window.ethereum) {
             try {
-                // AGGIUNTA FONDAMENTALE PER MOBILE: 
-                // Chiede al wallet di connettersi ufficialmente al sito
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: '0x13882', 
+                        chainName: 'Polygon Amoy Testnet',
+                        nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+                        rpcUrls: ['https://rpc-amoy.polygon.technology/'],
+                        blockExplorerUrls: ['https://amoy.polygonscan.com/']
+                    }]
+                });
+            } catch (error) {
+                alert("Errore rete: " + error.message);
+            }
+        } else {
+            alert("Installa MetaMask!");
+        }
+    });
+
+    // Funzione per aggiungere il token
+    document.getElementById('addToken').addEventListener('click', async () => {
+        if (window.ethereum) {
+            try {
+                // Sveglia il wallet
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-                // Una volta connesso, procede con l'aggiunta del token
-                const wasAdded = await window.ethereum.request({
+                await window.ethereum.request({
                     method: 'wallet_watchAsset',
                     params: {
                         type: 'ERC20',
@@ -25,11 +94,13 @@
                     },
                 });
             } catch (error) {
-                console.error(error);
-                alert("Errore durante l'operazione: " + error.message);
+                alert("Errore token: " + error.message);
             }
         } else {
-            alert('MetaMask non rilevato! Se sei su mobile, apri questo sito nel browser interno di MetaMask.');
+            alert("Usa il tasto arancione se sei su mobile o apri nel browser di MetaMask.");
         }
     });
 </script>
+
+</body>
+</html>
