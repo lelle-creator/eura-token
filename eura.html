@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestisci EURa</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px 20px; background-color: #f8f9fa; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        img { width: 120px; margin-bottom: 20px; border-radius: 50%; }
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+        button, .btn-mobile { padding: 15px; font-weight: bold; cursor: pointer; border: none; border-radius: 12px; text-decoration: none; color: white; }
+        .btn-network { background-color: #2bbdf7; }
+        .btn-token { background-color: #8247e5; }
+        .btn-mobile { background-color: #f6851b; }
+        .back-link { display: block; margin-bottom: 20px; color: #666; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Torna alla Home</a>
+        <img src="https://lelle-creator.github.io/eura-token/eura-logo.png" alt="EURa Logo">
+        <h1>Token EURa</h1>
+        <p>Usa i pulsanti qui sotto per configurare il tuo wallet.</p>
+
+        <div class="btn-group">
+            <button class="btn-network" id="addNetwork">1. Configura Rete Amoy</button>
+            <button class="btn-token" id="addToken">2. Aggiungi EURa al Wallet</button>
+            <a href="https://metamask.app.link/dapp/lelle-creator.github.io/eura-token/eura.html" class="btn-mobile">Apri in MetaMask Mobile</a>
+        </div>
+    </div>
+
+    <script>
+        const tokenAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22';
+        const tokenSymbol = 'EURA';
+        const tokenDecimals = 18;
+        const tokenImage = 'https://lelle-creator.github.io/eura-token/eura-logo.png';
+
+        document.getElementById('addNetwork').addEventListener('click', async () => {
+            if (window.ethereum) {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [{
+                            chainId: '0x13882',
+                            chainName: 'Polygon Amoy Testnet',
+                            nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+                            rpcUrls: ['https://rpc-amoy.polygon.technology/'],
+                            blockExplorerUrls: ['https://amoy.polygonscan.com/']
+                        }]
+                    });
+                } catch (e) { console.error(e); }
+            }
+        });
+
+        document.getElementById('addToken').addEventListener('click', async () => {
+            if (window.ethereum) {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    await window.ethereum.request({
+                        method: 'wallet_watchAsset',
+                        params: {
+                            type: 'ERC20',
+                            options: { address: tokenAddress, symbol: tokenSymbol, decimals: tokenDecimals, image: tokenImage },
+                        },
+                    });
+                } catch (e) { console.error(e); }
+            }
+        });
+    </script>
+</body>
+</html>
