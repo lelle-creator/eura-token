@@ -1,0 +1,37 @@
+const tokenAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22';
+const tokenSymbol = 'EURA';
+const tokenDecimals = 18;
+// Usa l'URL dell'immagine che ti ho generato caricandola su un sito come PostImages
+const tokenImage = 'IL_LINK_DIRETTO_ALLA_TUA_IMMAGINE_PNG'; 
+
+document.getElementById('addToken').addEventListener('click', async () => {
+    // 1. Controlla se MetaMask è installato
+    if (typeof window.ethereum !== 'undefined') {
+        try {
+            // 2. Chiedi a MetaMask di aggiungere il token
+            const wasAdded = await window.ethereum.request({
+                method: 'wallet_watchAsset',
+                params: {
+                    type: 'ERC20',
+                    options: {
+                        address: tokenAddress,
+                        symbol: tokenSymbol,
+                        decimals: tokenDecimals,
+                        image: tokenImage,
+                    },
+                },
+            });
+
+            if (wasAdded) {
+                alert('Ottimo! EURa è stato aggiunto al tuo wallet.');
+            } else {
+                alert('L\'operazione è stata annullata.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Errore: ' + error.message);
+        }
+    } else {
+        alert('MetaMask non rilevato! Assicurati che l\'estensione sia attiva e ricarica la pagina.');
+    }
+});
