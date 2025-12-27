@@ -3,104 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EURa Token Portal</title>
+    <title>Scegli il tuo Token</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 40px 20px; background-color: #f8f9fa; color: #333; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        img { width: 120px; height: 120px; margin-bottom: 20px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        h1 { margin-bottom: 10px; color: #1a1a1a; }
-        p { color: #666; margin-bottom: 30px; line-height: 1.5; }
-        .btn-group { display: flex; flex-direction: column; gap: 15px; }
-        button, .btn-link { 
-            padding: 15px 25px; font-size: 16px; font-weight: bold; cursor: pointer; 
-            border: none; border-radius: 12px; transition: transform 0.2s, opacity 0.2s;
-            text-decoration: none; display: inline-block;
-        }
-        button:active { transform: scale(0.98); }
-        .btn-token { background-color: #8247e5; color: white; } /* Colore Polygon */
-        .btn-network { background-color: #2bbdf7; color: white; }
-        .btn-mobile { background-color: #f6851b; color: white; } /* Colore MetaMask */
-        .footer { margin-top: 30px; font-size: 12px; color: #aaa; }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 50px 20px; background-color: #f4f4f9; }
+        .grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 40px; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); width: 200px; transition: transform 0.3s; cursor: pointer; text-decoration: none; color: inherit; }
+        .card:hover { transform: translateY(-10px); }
+        img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 15px; }
+        h2 { margin: 10px 0; color: #8247e5; }
     </style>
 </head>
 <body>
+    <h1>Benvenuto nel Portale Multi-Token</h1>
+    <p>Seleziona la moneta che desideri gestire</p>
 
-<div class="container">
-    <img src="https://lelle-creator.github.io/eura-token/eura-logo.png" alt="EURa Logo">
-    
-    <h1>Portale EURa</h1>
-    <p>Configura il tuo wallet per visualizzare e gestire i tuoi token EURa sulla rete Amoy.</p>
+    <div class="grid">
+        <a href="eura.html" class="card">
+            <img src="https://lelle-creator.github.io/eura-token/eura-logo.png" alt="EURa">
+            <h2>EURa</h2>
+            <p>Disponibile ora</p>
+        </a>
 
-    <div class="btn-group">
-        <button class="btn-network" id="addNetwork">1. Configura Rete Amoy</button>
-
-        <button class="btn-token" id="addToken">2. Aggiungi EURa al Wallet</button>
-
-        <a href="https://metamask.app.link/dapp/lelle-creator.github.io/eura-token/" class="btn-link btn-mobile">
-            Sei su Smartphone? Clicca qui
+        <a href="eurb.html" class="card">
+            <img src="https://lelle-creator.github.io/eura-token/eurb-log.png" style="filter: grayscale(100%);" alt="EURb">
+            <h2>EURb</h2>
+            <p style="color: #ff4757; font-weight: bold;">Coming Soon</p>
         </a>
     </div>
-
-    <div class="footer">
-        Contract: 0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22
-    </div>
-</div>
-
-<script>
-    const tokenAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22';
-    const tokenSymbol = 'EURA';
-    const tokenDecimals = 18;
-    const tokenImage = 'https://lelle-creator.github.io/eura-token/eura-logo.png';
-
-    // Funzione per aggiungere la rete Amoy
-    document.getElementById('addNetwork').addEventListener('click', async () => {
-        if (window.ethereum) {
-            try {
-                await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{
-                        chainId: '0x13882', 
-                        chainName: 'Polygon Amoy Testnet',
-                        nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
-                        rpcUrls: ['https://rpc-amoy.polygon.technology/'],
-                        blockExplorerUrls: ['https://amoy.polygonscan.com/']
-                    }]
-                });
-            } catch (error) {
-                alert("Errore rete: " + error.message);
-            }
-        } else {
-            alert("Installa MetaMask!");
-        }
-    });
-
-    // Funzione per aggiungere il token
-    document.getElementById('addToken').addEventListener('click', async () => {
-        if (window.ethereum) {
-            try {
-                // Sveglia il wallet
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-                await window.ethereum.request({
-                    method: 'wallet_watchAsset',
-                    params: {
-                        type: 'ERC20',
-                        options: {
-                            address: tokenAddress,
-                            symbol: tokenSymbol,
-                            decimals: tokenDecimals,
-                            image: tokenImage,
-                        },
-                    },
-                });
-            } catch (error) {
-                alert("Errore token: " + error.message);
-            }
-        } else {
-            alert("Usa il tasto arancione se sei su mobile o apri nel browser di MetaMask.");
-        }
-    });
-</script>
-
 </body>
 </html>
