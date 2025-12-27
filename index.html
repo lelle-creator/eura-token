@@ -1,60 +1,35 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>Portale EURa</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 100px; background-color: #f4f4f9; }
-        h1 { color: #333; }
-        button { 
-            padding: 15px 30px; 
-            font-size: 18px; 
-            cursor: pointer; 
-            background-color: #8247e5; 
-            color: white; 
-            border: none; 
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        button:hover { background-color: #6a35bc; }
-    </style>
-</head>
-<body>
+<script>
+    const tokenAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22';
+    const tokenSymbol = 'EURA';
+    const tokenDecimals = 18;
+    const tokenImage = 'https://lelle-creator.github.io/eura-token/logo.png'; 
 
-    <h1>Benvenuto nel Portale EURa</h1>
-    <p>Clicca il pulsante qui sotto per aggiungere la moneta al tuo wallet con l'icona ufficiale.</p>
-    
-    <button id="addToken">Aggiungi EURa a MetaMask</button>
+    document.getElementById('addToken').addEventListener('click', async () => {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                // AGGIUNTA FONDAMENTALE PER MOBILE: 
+                // Chiede al wallet di connettersi ufficialmente al sito
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-    <script>
-        const tokenAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22';
-        const tokenSymbol = 'EURA';
-        const tokenDecimals = 18;
-        // Se hai caricato l'immagine sul repository, il link sarà questo:
-        const tokenImage = 'https://lelle-creator.github.io/eura-token/logo.png'; 
-
-        document.getElementById('addToken').addEventListener('click', async () => {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const wasAdded = await window.ethereum.request({
-                        method: 'wallet_watchAsset',
-                        params: {
-                            type: 'ERC20',
-                            options: {
-                                address: tokenAddress,
-                                symbol: tokenSymbol,
-                                decimals: tokenDecimals,
-                                image: tokenImage,
-                            },
+                // Una volta connesso, procede con l'aggiunta del token
+                const wasAdded = await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: tokenAddress,
+                            symbol: tokenSymbol,
+                            decimals: tokenDecimals,
+                            image: tokenImage,
                         },
-                    });
-                } catch (error) {
-                    console.error(error);
-                }
-            } else {
-                alert('MetaMask non rilevato! Per favore installalo per procedere.');
+                    },
+                });
+            } catch (error) {
+                console.error(error);
+                alert("Errore durante l'operazione: " + error.message);
             }
-        });
-    </script>
-</body>
-</html>
+        } else {
+            alert('MetaMask non rilevato! Se sei su mobile, apri questo sito nel browser interno di MetaMask.');
+        }
+    });
+</script>
