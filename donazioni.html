@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donazioni EURa</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 40px 20px; background-color: #f8f9fa; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        img { width: 100px; margin-bottom: 20px; border-radius: 50%; }
+        input { width: 80%; padding: 12px; margin: 20px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 18px; text-align: center; }
+        .btn-donate { background-color: #8247e5; color: white; padding: 15px 30px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; width: 85%; font-size: 16px; }
+        .back-link { display: block; margin-bottom: 20px; color: #666; text-decoration: none; font-weight: bold; }
+        .status { margin-top: 15px; font-size: 14px; color: #28a745; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Torna alla Home</a>
+    <img src="https://lelle-creator.github.io/eura-token/eura-logo.png" alt="EURa Logo">
+    <h1>Supporta il Progetto</h1>
+    <p>Inserisci la quantità di <strong>EURa</strong> che desideri donare:</p>
+
+    <input type="number" id="amountInput" placeholder="Esempio: 10" min="0.1" step="0.1">
+    
+    <button class="btn-donate" id="donateBtn">Invia Donazione</button>
+    <div id="statusMsg" class="status">Transazione inviata con successo!</div>
+</div>
+
+<script>
+    const contractAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22'; // Indirizzo contratto EURa
+    const myWallet = '0xE3B332d207a06C7c676D44294b98E5d7F704241A'; // Il tuo indirizzo che riceve
+
+    document.getElementById('donateBtn').addEventListener('click', async () => {
+        const amount = document.getElementById('amountInput').value;
+
+        if (!amount || amount <= 0) {
+            alert("Inserisci un importo valido");
+            return;
+        }
+
+        if (window.ethereum) {
+            try {
+                // 1. Chiedi connessione
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const userWallet = accounts[0];
+
+                // 2. Calcolo dei decimali (18) in formato esadecimale per lo Smart Contract
+                const decimals = 18;
+                const bigAmount = BigInt(amount * Math.pow(10, decimals));
+                const hexAmount = bigAmount.toString(16).padStart(64, '0');
+
+                // 3. Preparazione dei dati della funzione transfer(address,uint256)
+                // 0xa9059cbb è l'ID della funzione "transfer"
+                const data = '0xa9059cbb' + 
+                             '000000000000000000000000' + myWallet.replace('0x', '').toLowerCase() + 
+                             hexAmount;
+
+                const txParams = {
+                    to: contractAddress,
+                    from: userWallet,
+                    data: data,
+                };
+
+                // 4. Invio transazione
+                await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [txParams],
+                });
+
+                document.getElementById('statusMsg').style.display = 'block';
+            } catch (error) {
+                console.error(error);
+                alert("Errore durante la donazione: " + error.message);
+            }
+        } else {
+            alert("Per favore, usa MetaMask per completare la donazione.");
+        }
+    });
+</script>
+
+</body>
+</html>
