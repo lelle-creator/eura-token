@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minecraft EURa Shop</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <style>
         body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 20px; background-color: #1e1e1e; color: #f0f0f0; }
         .container { max-width: 600px; margin: auto; background: #313233; padding: 30px; border: 4px solid #000; box-shadow: 10px 10px 0px #555; }
-        
-        /* Campo Nickname */
         .user-box { background: #444; padding: 15px; border: 2px dashed #55ff55; margin-bottom: 20px; }
         .user-box input { background: #000; color: #55ff55; border: 2px solid #55ff55; padding: 10px; width: 80%; font-family: inherit; font-size: 16px; text-align: center; }
-
         .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 2px solid #444; }
         .item-info { display: flex; align-items: center; text-align: left; }
         .item-icon { width: 50px; height: 50px; margin-right: 15px; image-rendering: pixelated; }
@@ -61,6 +60,21 @@
 </div>
 
 <script>
+    // TUA CONFIGURAZIONE FIREBASE
+    const firebaseConfig = {
+        apiKey: "AIzaSyAfSwk5rVvdsnzBN9bcSflI0qbYs1eyJHE",
+        authDomain: "eura-shop-minecraft.firebaseapp.com",
+        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com",
+        projectId: "eura-shop-minecraft",
+        storageBucket: "eura-shop-minecraft.firebasestorage.app",
+        messagingSenderId: "869631374968",
+        appId: "1:869631374968:web:1206d38b334144e5a9df8d"
+    };
+
+    // Inizializza Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     let cart = [];
     let totalPrice = 0;
     const myWallet = '0xE3B332d207a06C7c676D44294b98E5d7F704241A';
@@ -91,13 +105,8 @@
             totalPrice = 0;
             cart.forEach((item, index) => {
                 totalPrice += item.price;
-                cartList.innerHTML += `
-                    <div class="cart-item">
-                        <span>${item.name}</span>
-                        <button class="btn-remove" onclick="removeFromCart(${index})">X</button>
-                    </div>`;
+                cartList.innerHTML += `<div class="cart-item"><span>${item.name}</span><button class="btn-remove" onclick="removeFromCart(${index})">X</button></div>`;
             });
-            // Il pulsante si abilita solo se c'è almeno un oggetto E il nickname
             payBtn.disabled = (nickname === "");
         }
         totalDisplay.innerText = totalPrice;
@@ -110,7 +119,6 @@
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const orderSummary = cart.map(i => i.name).join(", ");
                 const hexAmount = BigInt(totalPrice * Math.pow(10, 18)).toString(16).padStart(64, '0');
-                
                 const data = '0xa9059cbb' + '000000000000000000000000' + myWallet.replace('0x', '').toLowerCase() + hexAmount;
 
                 const txHash = await window.ethereum.request({
@@ -118,9 +126,16 @@
                     params: [{ to: contractAddress, from: accounts[0], data: data }],
                 });
 
-                // Notifica finale con tutti i dati necessari
-                alert(`PAGAMENTO EFFETTUATO!\n\nUtente: ${nick}\nOggetti: ${orderSummary}\nTX: ${txHash.substring(0,20)}...\n\nConsegna in corso sul server!`);
-                
+                // SALVA L'ORDINE SU FIREBASE
+                database.ref('ordini/' + txHash).set({
+                    nickname: nick,
+                    prodotti: orderSummary,
+                    totale: totalPrice,
+                    stato: "in_attesa",
+                    timestamp: Date.now()
+                });
+
+                alert(`PAGAMENTO INVIATO!\nUtente: ${nick}\nID Ordine: ${txHash.substring(0,10)}...`);
                 cart = [];
                 document.getElementById('mcNickname').value = "";
                 updateUI();
