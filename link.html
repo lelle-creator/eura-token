@@ -1,23 +1,65 @@
-// Funzione per collegare il wallet
-async function linkWallet() {
-    const nick = document.getElementById('mcNick').value.trim();
-    const code = document.getElementById('verifyCode').value.trim();
-    const wallet = accounts[0]; // Preso da MetaMask
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Collega Wallet - EURa Shop</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #1a1a1a; color: white; padding-top: 50px; }
+        .box { background: #333; padding: 20px; border-radius: 10px; display: inline-block; border: 2px solid #55ff55; }
+        input { display: block; margin: 10px auto; padding: 10px; width: 80%; }
+        button { background: #55ff55; color: black; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>🔗 Collega Account</h1>
+        <p>Inserisci i dati per collegare il tuo Wallet</p>
+        <input type="text" id="mcNick" placeholder="Il tuo Nickname Minecraft">
+        <input type="text" id="verifyCode" placeholder="Codice di verifica (scrivi /link in gioco)">
+        <button onclick="checkAndLink()">COLLEGA WALLET</button>
+    </div>
 
-    // 1. Controlla se il codice su Firebase corrisponde a quello inserito
-    const snapshot = await database.ref('pending_links/' + nick).once('value');
-    const data = snapshot.val();
+    <script>
+        // USA LA TUA CONFIGURAZIONE FIREBASE QUI
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfSwk5rVvdsnzBN9bcSflI0qbYs1eyJHE",
+            authDomain: "eura-shop-minecraft.firebaseapp.com",
+            databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com",
+            projectId: "eura-shop-minecraft"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-    if (data && data.code === code) {
-        // 2. Se corrisponde, crea l'associazione ufficiale
-        await database.ref('users/' + nick).set({
-            wallet: wallet,
-            linkedAt: Date.now()
-        });
-        // 3. Cancella il codice temporaneo
-        await database.ref('pending_links/' + nick).remove();
-        alert("Wallet collegato con successo!");
-    } else {
-        alert("Codice errato o nickname non trovato!");
-    }
-}
+        async function checkAndLink() {
+            const nick = document.getElementById('mcNick').value.trim().toLowerCase();
+            const code = document.getElementById('verifyCode').value.trim();
+
+            if (!window.ethereum) return alert("Installa MetaMask!");
+
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const wallet = accounts[0];
+
+                // Controlla se il codice esiste nel database
+                const snap = await database.ref('pending_links/' + nick).once('value');
+                const data = snap.val();
+
+                if (data && data.code === code) {
+                    // Se il codice è giusto, salva il collegamento definitivo
+                    await database.ref('users/' + nick).set({
+                        wallet: wallet,
+                        linkedAt: Date.now()
+                    });
+                    // Cancella il codice temporaneo
+                    await database.ref('pending_links/' + nick).remove();
+                    alert("✅ Wallet collegato correttamente a " + nick);
+                } else {
+                    alert("❌ Codice errato o nickname non trovato. Digita /link nel server!");
+                }
+            } catch (e) { alert("Errore: " + e.message); }
+        }
+    </script>
+</body>
+</html>
