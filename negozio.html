@@ -5,49 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minecraft EURa Shop</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; background-color: #1e1e1e; color: #f0f0f0; }
-        .container { max-width: 600px; margin: auto; background: #2d2d2d; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 2px solid #3d3d3d; }
-        .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #3d3d3d; }
-        .item-info { text-align: left; }
-        .btn-add { background: #3c8527; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .cart-summary { margin-top: 30px; padding: 20px; background: #3d3d3d; border-radius: 15px; text-align: left; }
-        .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; background: #4d4d4d; padding: 8px; border-radius: 5px; }
-        .btn-remove { background: #ff4757; color: white; border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .btn-pay { background: #8247e5; color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 15px; }
-        .btn-pay:disabled { background: #555; cursor: not-allowed; }
+        body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 20px; background-color: #1e1e1e; color: #f0f0f0; }
+        .container { max-width: 600px; margin: auto; background: #313233; padding: 30px; border: 4px solid #000; box-shadow: 10px 10px 0px #555; }
+        .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 2px solid #444; }
+        .item-info { display: flex; align-items: center; text-align: left; }
+        .item-icon { width: 50px; height: 50px; margin-right: 15px; image-rendering: pixelated; }
+        .btn-add { background: #55ff55; color: #000; border: 2px solid #000; padding: 8px 15px; cursor: pointer; font-weight: bold; }
+        .cart-summary { margin-top: 30px; padding: 20px; background: #222; border: 2px solid #55ff55; }
+        .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; background: #444; padding: 5px 10px; }
+        .btn-remove { background: #ff5555; color: white; border: none; padding: 2px 8px; cursor: pointer; }
+        .btn-pay { background: #5555ff; color: white; width: 100%; padding: 15px; border: 3px solid #000; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 15px; }
+        .btn-pay:disabled { background: #333; color: #777; cursor: not-allowed; border-color: #444; }
         .back-link { display: block; margin-bottom: 20px; color: #aaa; text-decoration: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="index.html" class="back-link">← Torna alla Home</a>
-    <h1 style="color: #55ff55;">Minecraft Market</h1>
-    <p>Acquista risorse preziose con i tuoi EURa:</p>
+    <a href="index.html" class="back-link">⬅ Torna alla Home</a>
+    <h1 style="color: #55ff55; text-shadow: 2px 2px #000;">MINECRAFT SHOP</h1>
 
     <div class="shop-item">
-        <div class="item-info"><strong>💎 Diamante</strong><br><small>Prezzo: 50 EURa</small></div>
-        <button class="btn-add" onclick="addToCart('Diamante', 50)">Aggiungi</button>
+        <div class="item-info">
+            <img src="https://minecraft.wiki/images/Diamond_JE3_BE3.png" class="item-icon">
+            <div><strong>Diamante</strong><br><small>50 EURa</small></div>
+        </div>
+        <button class="btn-add" onclick="addToCart('Diamante', 50)">AGGIUNGI</button>
     </div>
+
     <div class="shop-item">
-        <div class="item-info"><strong>🟡 Oro</strong><br><small>Prezzo: 20 EURa</small></div>
-        <button class="btn-add" onclick="addToCart('Oro', 20)">Aggiungi</button>
+        <div class="item-info">
+            <img src="https://minecraft.wiki/images/Gold_Ingot_JE4_BE2.png" class="item-icon">
+            <div><strong>Lingotto Oro</strong><br><small>20 EURa</small></div>
+        </div>
+        <button class="btn-add" onclick="addToCart('Oro', 20)">AGGIUNGI</button>
     </div>
+
     <div class="shop-item">
-        <div class="item-info"><strong>⚪ Ferro</strong><br><small>Prezzo: 10 EURa</small></div>
-        <button class="btn-add" onclick="addToCart('Ferro', 10)">Aggiungi</button>
-    </div>
-    <div class="shop-item">
-        <div class="item-info"><strong>🟤 Rame</strong><br><small>Prezzo: 5 EURa</small></div>
-        <button class="btn-add" onclick="addToCart('Rame', 5)">Aggiungi</button>
+        <div class="item-info">
+            <img src="https://minecraft.wiki/images/Iron_Ingot_JE3_BE2.png" class="item-icon">
+            <div><strong>Lingotto Ferro</strong><br><small>10 EURa</small></div>
+        </div>
+        <button class="btn-add" onclick="addToCart('Ferro', 10)">AGGIUNGI</button>
     </div>
 
     <div class="cart-summary">
-        <h3>🛒 Inventario Ordine</h3>
-        <div id="cartList">Il carrello è vuoto</div>
-        <hr style="border: 0.5px solid #555;">
-        <div style="font-size: 20px; text-align: right;">Totale: <strong id="totalDisplay" style="color: #55ff55;">0</strong> EURa</div>
-        <button class="btn-pay" id="payBtn" disabled>Conferma Acquisto</button>
+        <h3 style="color: #ffff55;">IL TUO ZAINO</h3>
+        <div id="cartList">Vuoto</div>
+        <hr>
+        <div style="font-size: 20px;">TOTALE: <span id="totalDisplay" style="color: #55ff55;">0</span> EURa</div>
+        <button class="btn-pay" id="payBtn" disabled>CONFERMA ACQUISTO</button>
     </div>
 </div>
 
@@ -73,7 +80,7 @@
         const payBtn = document.getElementById('payBtn');
         
         if (cart.length === 0) {
-            cartList.innerHTML = "Il carrello è vuoto";
+            cartList.innerHTML = "Vuoto";
             totalPrice = 0;
             payBtn.disabled = true;
         } else {
@@ -83,8 +90,8 @@
                 totalPrice += item.price;
                 cartList.innerHTML += `
                     <div class="cart-item">
-                        <span>${item.name} (${item.price} EURa)</span>
-                        <button class="btn-remove" onclick="removeFromCart(${index})">Rimuovi</button>
+                        <span>${item.name}</span>
+                        <button class="btn-remove" onclick="removeFromCart(${index})">X</button>
                     </div>`;
             });
             payBtn.disabled = false;
@@ -96,25 +103,25 @@
         if (window.ethereum) {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const hexAmount = BigInt(totalPrice * Math.pow(10, 18)).toString(16).padStart(64, '0');
                 
-                const data = '0xa9059cbb' + 
-                             '000000000000000000000000' + myWallet.replace('0x', '').toLowerCase() + 
-                             hexAmount;
+                // Crea il riepilogo dell'ordine per il LOG
+                const orderSummary = cart.map(i => i.name).join(", ");
+                
+                const hexAmount = BigInt(totalPrice * Math.pow(10, 18)).toString(16).padStart(64, '0');
+                const data = '0xa9059cbb' + '000000000000000000000000' + myWallet.replace('0x', '').toLowerCase() + hexAmount;
 
                 const txHash = await window.ethereum.request({
                     method: 'eth_sendTransaction',
                     params: [{ to: contractAddress, from: accounts[0], data: data }],
                 });
 
-                alert("Ordine inviato! TX: " + txHash.substring(0, 15) + "...");
+                // INVIO LOG (Qui puoi inserire un Webhook Discord in futuro)
+                console.log(`ORDINE: ${orderSummary} | DA: ${accounts[0]} | TX: ${txHash}`);
+                
+                alert("ACQUISTO EFFETTUATO!\nOggetti ordinati: " + orderSummary + "\nControlla il gioco tra poco.");
                 cart = [];
                 updateUI();
-            } catch (error) {
-                alert("Errore: " + error.message);
-            }
-        } else {
-            alert("Usa MetaMask!");
+            } catch (error) { alert("Errore: " + error.message); }
         }
     });
 </script>
