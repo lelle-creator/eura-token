@@ -7,6 +7,11 @@
     <style>
         body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 20px; background-color: #1e1e1e; color: #f0f0f0; }
         .container { max-width: 600px; margin: auto; background: #313233; padding: 30px; border: 4px solid #000; box-shadow: 10px 10px 0px #555; }
+        
+        /* Campo Nickname */
+        .user-box { background: #444; padding: 15px; border: 2px dashed #55ff55; margin-bottom: 20px; }
+        .user-box input { background: #000; color: #55ff55; border: 2px solid #55ff55; padding: 10px; width: 80%; font-family: inherit; font-size: 16px; text-align: center; }
+
         .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 2px solid #444; }
         .item-info { display: flex; align-items: center; text-align: left; }
         .item-icon { width: 50px; height: 50px; margin-right: 15px; image-rendering: pixelated; }
@@ -25,6 +30,11 @@
     <a href="index.html" class="back-link">⬅ Torna alla Home</a>
     <h1 style="color: #55ff55; text-shadow: 2px 2px #000;">MINECRAFT SHOP</h1>
 
+    <div class="user-box">
+        <label>NICKNAME MINECRAFT:</label><br><br>
+        <input type="text" id="mcNickname" placeholder="Inserisci il tuo Nick" oninput="updateUI()">
+    </div>
+
     <div class="shop-item">
         <div class="item-info">
             <img src="https://minecraft.wiki/images/Diamond_JE3_BE3.png" class="item-icon">
@@ -36,17 +46,9 @@
     <div class="shop-item">
         <div class="item-info">
             <img src="https://minecraft.wiki/images/Gold_Ingot_JE4_BE2.png" class="item-icon">
-            <div><strong>Lingotto Oro</strong><br><small>20 EURa</small></div>
+            <div><strong>Oro</strong><br><small>20 EURa</small></div>
         </div>
         <button class="btn-add" onclick="addToCart('Oro', 20)">AGGIUNGI</button>
-    </div>
-
-    <div class="shop-item">
-        <div class="item-info">
-            <img src="https://minecraft.wiki/images/Iron_Ingot_JE3_BE2.png" class="item-icon">
-            <div><strong>Lingotto Ferro</strong><br><small>10 EURa</small></div>
-        </div>
-        <button class="btn-add" onclick="addToCart('Ferro', 10)">AGGIUNGI</button>
     </div>
 
     <div class="cart-summary">
@@ -78,6 +80,7 @@
         const cartList = document.getElementById('cartList');
         const totalDisplay = document.getElementById('totalDisplay');
         const payBtn = document.getElementById('payBtn');
+        const nickname = document.getElementById('mcNickname').value.trim();
         
         if (cart.length === 0) {
             cartList.innerHTML = "Vuoto";
@@ -94,20 +97,20 @@
                         <button class="btn-remove" onclick="removeFromCart(${index})">X</button>
                     </div>`;
             });
-            payBtn.disabled = false;
+            // Il pulsante si abilita solo se c'è almeno un oggetto E il nickname
+            payBtn.disabled = (nickname === "");
         }
         totalDisplay.innerText = totalPrice;
     }
 
     document.getElementById('payBtn').addEventListener('click', async () => {
+        const nick = document.getElementById('mcNickname').value.trim();
         if (window.ethereum) {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                
-                // Crea il riepilogo dell'ordine per il LOG
                 const orderSummary = cart.map(i => i.name).join(", ");
-                
                 const hexAmount = BigInt(totalPrice * Math.pow(10, 18)).toString(16).padStart(64, '0');
+                
                 const data = '0xa9059cbb' + '000000000000000000000000' + myWallet.replace('0x', '').toLowerCase() + hexAmount;
 
                 const txHash = await window.ethereum.request({
@@ -115,11 +118,11 @@
                     params: [{ to: contractAddress, from: accounts[0], data: data }],
                 });
 
-                // INVIO LOG (Qui puoi inserire un Webhook Discord in futuro)
-                console.log(`ORDINE: ${orderSummary} | DA: ${accounts[0]} | TX: ${txHash}`);
+                // Notifica finale con tutti i dati necessari
+                alert(`PAGAMENTO EFFETTUATO!\n\nUtente: ${nick}\nOggetti: ${orderSummary}\nTX: ${txHash.substring(0,20)}...\n\nConsegna in corso sul server!`);
                 
-                alert("ACQUISTO EFFETTUATO!\nOggetti ordinati: " + orderSummary + "\nControlla il gioco tra poco.");
                 cart = [];
+                document.getElementById('mcNickname').value = "";
                 updateUI();
             } catch (error) { alert("Errore: " + error.message); }
         }
