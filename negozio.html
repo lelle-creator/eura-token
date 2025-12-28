@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EURa Shop</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; background-color: #f8f9fa; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
+        .item-info { text-align: left; }
+        .btn-add { background: #8247e5; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        .cart-summary { margin-top: 30px; padding: 20px; background: #f0f0f0; border-radius: 15px; }
+        .btn-pay { background: #28a745; color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 15px; }
+        .back-link { display: block; margin-bottom: 20px; color: #666; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Torna alla Home</a>
+    <h1>Shop del Gioco</h1>
+    <p>Seleziona i prodotti da acquistare:</p>
+
+    <div class="shop-item">
+        <div class="item-info"><strong>🍔 Panino</strong><br><small>Prezzo: 10 EURa</small></div>
+        <button class="btn-add" onclick="addToCart('Panino', 10)">Aggiungi</button>
+    </div>
+    <div class="shop-item">
+        <div class="item-info"><strong>🥤 Soda</strong><br><small>Prezzo: 5 EURa</small></div>
+        <button class="btn-add" onclick="addToCart('Soda', 5)">Aggiungi</button>
+    </div>
+    <div class="shop-item">
+        <div class="item-info"><strong>🍰 Pasticcino</strong><br><small>Prezzo: 7 EURa</small></div>
+        <button class="btn-add" onclick="addToCart('Pasticcino', 7)">Aggiungi</button>
+    </div>
+
+    <div class="cart-summary">
+        <h3>Il tuo Carrello</h3>
+        <div id="cartItems">Vuoto</div>
+        <hr>
+        <div style="font-size: 20px;">Totale: <strong id="totalPrice">0</strong> EURa</div>
+        <button class="btn-pay" id="payBtn" disabled>Paga Ora</button>
+    </div>
+</div>
+
+<script>
+    let total = 0;
+    let items = [];
+    const myWallet = '0xE3B332d207a06C7c676D44294b98E5d7F704241A';
+    const contractAddress = '0x7beba6c16a4E1bDd04bF5a586ed45F3E0b505e22';
+
+    function addToCart(name, price) {
+        total += price;
+        items.push(name);
+        document.getElementById('totalPrice').innerText = total;
+        document.getElementById('cartItems').innerText = items.join(', ');
+        document.getElementById('payBtn').disabled = false;
+    }
+
+    document.getElementById('payBtn').addEventListener('click', async () => {
+        if (window.ethereum) {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                
+                // Conversione totale in esadecimale (18 decimali)
+                const hexAmount = BigInt(total * Math.pow(10, 18)).toString(16).padStart(64, '0');
+                
+                // Funzione transfer(to, value)
+                const data = '0xa9059cbb' + 
+                             '000000000000000000000000' + myWallet.replace('0x', '').toLowerCase() + 
+                             hexAmount;
+
+                await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [{
+                        to: contractAddress,
+                        from: accounts[0],
+                        data: data
+                    }],
+                });
+
+                alert("Pagamento inviato! Riceverai i tuoi item nel gioco a breve.");
+                // Reset carrello
+                total = 0; items = [];
+                document.getElementById('totalPrice').innerText = 0;
+                document.getElementById('cartItems').innerText = "Vuoto";
+                document.getElementById('payBtn').disabled = true;
+
+            } catch (error) {
+                alert("Errore: " + error.message);
+            }
+        } else {
+            alert("Usa MetaMask per pagare!");
+        }
+    });
+</script>
+</body>
+</html>
