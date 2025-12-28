@@ -1,0 +1,23 @@
+// Funzione per collegare il wallet
+async function linkWallet() {
+    const nick = document.getElementById('mcNick').value.trim();
+    const code = document.getElementById('verifyCode').value.trim();
+    const wallet = accounts[0]; // Preso da MetaMask
+
+    // 1. Controlla se il codice su Firebase corrisponde a quello inserito
+    const snapshot = await database.ref('pending_links/' + nick).once('value');
+    const data = snapshot.val();
+
+    if (data && data.code === code) {
+        // 2. Se corrisponde, crea l'associazione ufficiale
+        await database.ref('users/' + nick).set({
+            wallet: wallet,
+            linkedAt: Date.now()
+        });
+        // 3. Cancella il codice temporaneo
+        await database.ref('pending_links/' + nick).remove();
+        alert("Wallet collegato con successo!");
+    } else {
+        alert("Codice errato o nickname non trovato!");
+    }
+}
