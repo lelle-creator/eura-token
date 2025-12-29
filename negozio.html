@@ -34,29 +34,64 @@
         <input type="text" id="mcNickname" placeholder="Inserisci il tuo Nick" oninput="updateUI()">
     </div>
 
+    <div class="shop-container">
+    
     <div class="shop-item">
-        <div class="item-info">
-            <img src="https://minecraft.wiki/images/Diamond_JE3_BE3.png" class="item-icon">
-            <div><strong>Diamante</strong><br><small>50 EURa</small></div>
-        </div>
-        <button class="btn-add" onclick="addToCart('Diamante', 50)">AGGIUNGI</button>
+        <img src="https://minecraft.wiki/images/Netherite_Ingot_JE2_BE2.png" alt="Netherite">
+        <h3>Lingotto di Netherite</h3>
+        <p class="price">25.00 EURa</p>
+        <p class="quantity">Quantità: 64</p>
+        <button onclick="compra('Netherite', 25.00)">Acquista Ora</button>
     </div>
 
     <div class="shop-item">
-        <div class="item-info">
-            <img src="https://minecraft.wiki/images/Gold_Ingot_JE4_BE2.png" class="item-icon">
-            <div><strong>Oro</strong><br><small>20 EURa</small></div>
-        </div>
-        <button class="btn-add" onclick="addToCart('Oro', 20)">AGGIUNGI</button>
+        <img src="https://minecraft.wiki/images/Diamond_JE3_BE3.png" alt="Diamante">
+        <h3>Diamante</h3>
+        <p class="price">10.00 EURa</p>
+        <p class="quantity">Quantità: 64</p>
+        <button onclick="compra('Diamante', 10.00)">Acquista Ora</button>
     </div>
 
-    <div class="cart-summary">
-        <h3 style="color: #ffff55;">IL TUO ZAINO</h3>
-        <div id="cartList">Vuoto</div>
-        <hr>
-        <div style="font-size: 20px;">TOTALE: <span id="totalDisplay" style="color: #55ff55;">0</span> EURa</div>
-        <button class="btn-pay" id="payBtn" disabled>CONFERMA ACQUISTO</button>
+    <div class="shop-item">
+        <img src="https://minecraft.wiki/images/Gold_Ingot_JE4_BE2.png" alt="Oro">
+        <h3>Lingotto d'Oro</h3>
+        <p class="price">5.00 EURa</p>
+        <p class="quantity">Quantità: 64</p>
+        <button onclick="compra('Oro', 5.00)">Acquista Ora</button>
     </div>
+
+    <div class="shop-item">
+        <img src="https://minecraft.wiki/images/Iron_Ingot_JE3_BE2.png" alt="Ferro">
+        <h3>Lingotto di Ferro</h3>
+        <p class="price">1.25 EURa</p>
+        <p class="quantity">Quantità: 64</p>
+        <button onclick="compra('Ferro', 1.25)">Acquista Ora</button>
+    </div>
+
+    <div class="shop-item">
+        <img src="https://minecraft.wiki/images/Redstone_Dust_JE2_BE2.png" alt="Redstone">
+        <h3>Pietra Rossa</h3>
+        <p class="price">1.00 EURa</p>
+        <p class="quantity">Quantità: 64</p>
+        <button onclick="compra('Pietra Rossa', 1.00)">Acquista Ora</button>
+    </div>
+
+    <div class="shop-item">
+        <img src="https://minecraft.wiki/images/Copper_Ingot_JE2_BE2.png" alt="Rame">
+        <h3>Lingotto di Rame</h3>
+        <p class="price">0.75 EURa</p>
+        <p class="quantity">Quantità: 64</p>
+        <button onclick="compra('Rame', 0.75)">Acquista Ora</button>
+    </div>
+
+    <div class="shop-item">
+        <img src="https://minecraft.wiki/images/Coal_JE4_BE3.png" alt="Carbone">
+        <h3>Carbone</h3>
+        <p class="price">0.25 EURa</p>
+        <p class="quantity">Quantità: 64</p>
+        <button onclick="compra('Carbone', 0.25)">Acquista Ora</button>
+    </div>
+
 </div>
 
 <script>
