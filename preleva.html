@@ -1,0 +1,39 @@
+<div class="container">
+    <h2>💰 Il tuo Forziere</h2>
+    <p>Saldo accumulato in gioco:</p>
+    <h1 id="virtual-balance">0.00 MC</h1>
+    
+    <div style="background: #fff3cd; padding: 10px; border-radius: 10px; font-size: 14px; margin-bottom: 20px;">
+        ⚠️ Nota: Il prelievo ha una fee fissa di <b>20 MineCrypto</b>.
+    </div>
+
+    <button id="btn-withdraw" class="btn" disabled>PRELEVA SU WALLET</button>
+    <div id="status"></div>
+</div>
+
+<script>
+    // 1. Carica il saldo da Firebase
+    // (Usa il nick collegato per leggere utenti/nick/saldo_virtuale)
+    
+    // 2. Al click su Preleva:
+    btnWithdraw.onclick = async () => {
+        const amount = saldoVirtuale;
+        if(amount <= 20) {
+            alert("Devi avere almeno 21 MineCrypto per coprire le fee!");
+            return;
+        }
+
+        // Qui il sito chiama il contratto MineCrypto
+        // L'utente firma con MetaMask e paga il gas POL
+        try {
+            const tx = await contract.claimTokens(ethers.utils.parseUnits(amount.toString(), 18));
+            await tx.wait();
+            
+            // Se la transazione va a buon fine, azzeriamo il saldo su Firebase
+            database.ref('utenti/' + nick + '/saldo_virtuale').set(0);
+            alert("Trasferimento completato!");
+        } catch (err) {
+            console.error(err);
+        }
+    }
+</script>
