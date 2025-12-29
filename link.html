@@ -2,64 +2,100 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Collega Wallet - EURa Shop</title>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collega Wallet - MineCrypto</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #1a1a1a; color: white; padding-top: 50px; }
-        .box { background: #333; padding: 20px; border-radius: 10px; display: inline-block; border: 2px solid #55ff55; }
-        input { display: block; margin: 10px auto; padding: 10px; width: 80%; }
-        button { background: #55ff55; color: black; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 40px; background-color: #f4f4f9; }
+        .container { max-width: 450px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        input { width: 90%; padding: 12px; margin: 15px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; }
+        .btn { background: #8247e5; color: white; border: none; padding: 15px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn:disabled { background: #ccc; }
+        #status { margin-top: 20px; font-weight: bold; }
+        .wallet-info { font-size: 12px; color: #666; word-break: break-all; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>🔗 Collega Account</h1>
-        <p>Inserisci i dati per collegare il tuo Wallet</p>
-        <input type="text" id="mcNick" placeholder="Il tuo Nickname Minecraft">
-        <input type="text" id="verifyCode" placeholder="Codice di verifica (scrivi /link in gioco)">
-        <button onclick="checkAndLink()">COLLEGA WALLET</button>
-    </div>
 
-    <script>
-        // USA LA TUA CONFIGURAZIONE FIREBASE QUI
-        const firebaseConfig = {
-            apiKey: "AIzaSyAfSwk5rVvdsnzBN9bcSflI0qbYs1eyJHE",
-            authDomain: "eura-shop-minecraft.firebaseapp.com",
-            databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com",
-            projectId: "eura-shop-minecraft"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+<div class="container">
+    <h2 style="color: #8247e5;">🔗 Collega Account</h2>
+    <p>Inserisci il tuo Nickname Minecraft per ricevere i pagamenti nel tuo wallet.</p>
+    
+    <div id="wallet-display" class="wallet-info">Wallet non connesso</div>
+    <button id="btn-connect" class="btn" style="background: #f6851b; margin-bottom: 10px;">CONNETTI METAMASK</button>
+    
+    <input type="text" id="mc-nickname" placeholder="Nickname Minecraft (es: ardea)" />
+    <button id="btn-link" class="btn" disabled>COLLEGA ORA</button>
+    
+    <div id="status"></div>
+    <br>
+    <a href="index.html" style="text-decoration: none; color: #8247e5;">← Torna alla Home</a>
+</div>
 
-        async function checkAndLink() {
-            const nick = document.getElementById('mcNick').value.trim().toLowerCase();
-            const code = document.getElementById('verifyCode').value.trim();
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-            if (!window.ethereum) return alert("Installa MetaMask!");
+<script>
+    // USA LA TUA CONFIGURAZIONE FIREBASE (come in negozio.html)
+    const firebaseConfig = {
+        apiKey: "AIzaSyAfSwk5rVvdsnBN9bcSf1I0qbYs1eyJHE",
+        authDomain: "eura-shop-minecraft.firebaseapp.com",
+        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com",
+        projectId: "eura-shop-minecraft",
+        storageBucket: "eura-shop-minecraft.appspot.com",
+        messagingSenderId: "869631374968",
+        appId: "1:869631374968:web:1206d38b334144e5a9df8d"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
+    let userWallet = "";
+
+    const btnConnect = document.getElementById('btn-connect');
+    const btnLink = document.getElementById('btn-link');
+    const statusDiv = document.getElementById('status');
+    const walletDisplay = document.getElementById('wallet-display');
+
+    // 1. Connetti MetaMask
+    btnConnect.onclick = async () => {
+        if (window.ethereum) {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const wallet = accounts[0];
-
-                // Controlla se il codice esiste nel database
-                const snap = await database.ref('pending_links/' + nick).once('value');
-                const data = snap.val();
-
-                if (data && data.code === code) {
-                    // Se il codice è giusto, salva il collegamento definitivo
-                    await database.ref('users/' + nick).set({
-                        wallet: wallet,
-                        linkedAt: Date.now()
-                    });
-                    // Cancella il codice temporaneo
-                    await database.ref('pending_links/' + nick).remove();
-                    alert("✅ Wallet collegato correttamente a " + nick);
-                } else {
-                    alert("❌ Codice errato o nickname non trovato. Digita /link nel server!");
-                }
-            } catch (e) { alert("Errore: " + e.message); }
+                userWallet = accounts[0];
+                walletDisplay.innerText = "Connesso: " + userWallet;
+                btnLink.disabled = false;
+                btnConnect.style.display = "none";
+            } catch (err) {
+                statusDiv.innerText = "Errore connessione wallet.";
+            }
+        } else {
+            alert("Installa MetaMask!");
         }
-    </script>
+    };
+
+    // 2. Salva su Firebase
+    btnLink.onclick = function() {
+        const nick = document.getElementById('mc-nickname').value.trim().toLowerCase();
+        
+        if (nick === "") {
+            alert("Inserisci un nickname!");
+            return;
+        }
+
+        statusDiv.innerHTML = "Salvataggio in corso...";
+
+        // Crea o aggiorna l'associazione nel database
+        database.ref('utenti/' + nick).set({
+            wallet: userWallet,
+            timestamp: Date.now()
+        }).then(() => {
+            statusDiv.style.color = "green";
+            statusDiv.innerHTML = "✅ Collegamento riuscito!<br>Ora puoi ricevere MineCrypto.";
+        }).catch((error) => {
+            statusDiv.style.color = "red";
+            statusDiv.innerHTML = "Errore: " + error.message;
+        });
+    };
+</script>
+
 </body>
 </html>
