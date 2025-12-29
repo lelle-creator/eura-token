@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurazione MineCrypto</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 20px; background-color: #1e1e1e; color: #f0f0f0; }
+        .container { max-width: 500px; margin: auto; background: #313233; padding: 30px; border: 4px solid #000; box-shadow: 10px 10px 0px #555; }
+        .btn { background: #55ff55; color: #000; border: 3px solid #000; padding: 15px 25px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; margin: 10px 0; }
+        .btn-token { background: #5555ff; color: white; }
+        .info-box { background: #222; padding: 15px; border: 2px dashed #55ff55; margin-top: 20px; text-align: left; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="color: #55ff55;">WALLET SETUP</h1>
+    <p>Configura il tuo MetaMask per iniziare a guadagnare MineCrypto!</p>
+
+    <button class="btn" onclick="aggiungiRete()">1. AGGIUNGI RETE AMOY</button>
+    <button class="btn btn-token" onclick="aggiungiToken()">2. AGGIUNGI TOKEN MINECRYPTO</button>
+
+    <div class="info-box">
+        <strong>Dettagli Token:</strong><br>
+        Indirizzo: <span style="word-break: break-all; color: #55ff55;">0x1ec9f6e3f57eee6fd4f2c360512d36fbb305f42bd9227f0250c850d27a780a9d</span><br>
+        Simbolo: MC<br>
+        Decimali: 18
+    </div>
+</div>
+
+<script>
+    async function aggiungiRete() {
+        if (window.ethereum) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: '0x13882', // 80002 in esadecimale (Amoy)
+                        chainName: 'Amoy',
+                        nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+                        rpcUrls: ['https://rpc-amoy.polygon.technology/'],
+                        blockExplorerUrls: ['https://amoy.polygonscan.com/']
+                    }]
+                });
+            } catch (error) { alert("Errore rete: " + error.message); }
+        } else { alert("Per favore installa MetaMask!"); }
+    }
+
+    async function aggiungiToken() {
+        const tokenAddress = '0x1ec9f6e3f57eee6fd4f2c360512d36fbb305f42bd9227f0250c850d27a780a9d';
+        const tokenSymbol = 'Craft';
+        const tokenDecimals = 18;
+
+        if (window.ethereum) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: tokenAddress,
+                            symbol: tokenSymbol,
+                            decimals: tokenDecimals,
+                            // Puoi aggiungere un URL di un'immagine qui per il logo del token
+                            image: 'https://minecraft.wiki/images/Diamond_JE3_BE3.png', 
+                        },
+                    },
+                });
+            } catch (error) { alert("Errore token: " + error.message); }
+        }
+    }
+</script>
+</body>
+</html>
