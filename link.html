@@ -7,35 +7,41 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 40px; background-color: #f4f4f9; }
         .container { max-width: 450px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        input { width: 90%; padding: 12px; margin: 15px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; }
-        .btn { background: #8247e5; color: white; border: none; padding: 15px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
-        .btn:disabled { background: #ccc; }
-        #status { margin-top: 20px; font-weight: bold; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; }
+        .btn { background: #8247e5; color: white; border: none; padding: 15px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-metamask { background: #f6851b; margin-bottom: 15px; }
+        #status { margin-top: 20px; font-weight: bold; min-height: 40px; }
         .wallet-info { font-size: 12px; color: #666; word-break: break-all; margin-bottom: 10px; }
+        .step { font-size: 14px; color: #8247e5; font-weight: bold; margin-top: 10px; display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2 style="color: #8247e5;">🔗 Collega Account</h2>
-    <p>Inserisci il tuo Nickname Minecraft per ricevere i pagamenti nel tuo wallet.</p>
+    <p>Associa il tuo Wallet al Nickname di gioco in modo sicuro.</p>
     
-    <div id="wallet-display" class="wallet-info">Wallet non connesso</div>
-    <button id="btn-connect" class="btn" style="background: #f6851b; margin-bottom: 10px;">CONNETTI METAMASK</button>
+    <div id="wallet-display" class="wallet-info">MetaMask non connesso</div>
+    <button id="btn-connect" class="btn btn-metamask">1. CONNETTI METAMASK</button>
     
-    <input type="text" id="mc-nickname" placeholder="Nickname Minecraft (es: ardea)" />
-    <button id="btn-link" class="btn" disabled>COLLEGA ORA</button>
+    <hr style="border: 1px solid #eee; margin: 20px 0;">
+
+    <label class="step">2. INSERISCI DATI DI GIOCO</label>
+    <input type="text" id="mc-nickname" placeholder="Nickname Minecraft" />
+    <input type="text" id="link-code" placeholder="Codice Segreto (dal server)" />
+    
+    <button id="btn-link" class="btn" disabled>3. VERIFICA E COLLEGA</button>
     
     <div id="status"></div>
     <br>
-    <a href="index.html" style="text-decoration: none; color: #8247e5;">← Torna alla Home</a>
+    <a href="index.html" style="text-decoration: none; color: #8247e5; font-size: 14px;">← Torna alla Home</a>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // USA LA TUA CONFIGURAZIONE FIREBASE (come in negozio.html)
     const firebaseConfig = {
         apiKey: "AIzaSyAfSwk5rVvdsnBN9bcSf1I0qbYs1eyJHE",
         authDomain: "eura-shop-minecraft.firebaseapp.com",
@@ -49,53 +55,68 @@
     const database = firebase.database();
 
     let userWallet = "";
-
     const btnConnect = document.getElementById('btn-connect');
     const btnLink = document.getElementById('btn-link');
     const statusDiv = document.getElementById('status');
     const walletDisplay = document.getElementById('wallet-display');
 
-    // 1. Connetti MetaMask
+    // 1. Logica MetaMask
     btnConnect.onclick = async () => {
         if (window.ethereum) {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 userWallet = accounts[0];
-                walletDisplay.innerText = "Connesso: " + userWallet;
+                walletDisplay.innerText = "Wallet: " + userWallet;
+                walletDisplay.style.color = "#8247e5";
                 btnLink.disabled = false;
-                btnConnect.style.display = "none";
+                btnConnect.innerText = "METAMASK CONNESSO ✅";
+                btnConnect.style.opacity = "0.7";
             } catch (err) {
                 statusDiv.innerText = "Errore connessione wallet.";
             }
         } else {
-            alert("Installa MetaMask!");
+            alert("Installa MetaMask per continuare!");
         }
     };
 
-    // 2. Salva su Firebase
+    // 2. Logica di Verifica e Salvataggio
     btnLink.onclick = function() {
         const nick = document.getElementById('mc-nickname').value.trim().toLowerCase();
+        const inputCode = document.getElementById('link-code').value.trim();
         
-        if (nick === "") {
-            alert("Inserisci un nickname!");
+        if (!nick || !inputCode) {
+            statusDiv.style.color = "orange";
+            statusDiv.innerText = "Inserisci sia Nickname che Codice!";
             return;
         }
 
-        statusDiv.innerHTML = "Salvataggio in corso...";
+        statusDiv.style.color = "black";
+        statusDiv.innerText = "Verifica in corso...";
 
-        // Crea o aggiorna l'associazione nel database
-        database.ref('utenti/' + nick).set({
-            wallet: userWallet,
-            timestamp: Date.now()
+        // Controlla se il codice su Firebase corrisponde
+        database.ref('richieste_collegamento/' + nick).once('value').then((snapshot) => {
+            const data = snapshot.val();
+            
+            // Verifica se il codice esiste e se coincide
+            if (data && String(data.codice) === String(inputCode)) {
+                // Procedi al salvataggio definitivo
+                return database.ref('utenti/' + nick).set({
+                    wallet: userWallet,
+                    timestamp: Date.now()
+                });
+            } else {
+                throw new Error("Codice errato o non richiesto in gioco!");
+            }
         }).then(() => {
             statusDiv.style.color = "green";
             statusDiv.innerHTML = "✅ Collegamento riuscito!<br>Ora puoi ricevere MineCrypto.";
+            // Pulisce i campi per sicurezza
+            document.getElementById('link-code').value = "";
         }).catch((error) => {
             statusDiv.style.color = "red";
-            statusDiv.innerHTML = "Errore: " + error.message;
+            statusDiv.innerHTML = "❌ " + error.message;
         });
     };
 </script>
-
 </body>
 </html>
