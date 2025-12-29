@@ -3,57 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preleva MineCrypto - Dashboard</title>
+    <title>Dashboard MineCrypto - Auto-Login</title>
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
     <style>
         :root { --primary: #8247e5; --bg: #0f111a; --card: #1a1d2b; --text: #ffffff; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        
         .dashboard { background: var(--card); border-radius: 24px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%; max-width: 400px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        
-        .token-logo { width: 120px; height: 120px; margin-bottom: 20px; filter: drop-shadow(0 0 15px var(--primary)); animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        .balance-label { font-size: 14px; color: #8b8e9b; text-transform: uppercase; letter-spacing: 1px; }
-        .balance-value { font-size: 48px; font-weight: bold; margin: 10px 0; color: #55ff55; }
-        
-        .info-card { background: rgba(130, 71, 229, 0.1); border-radius: 12px; padding: 15px; margin: 20px 0; border: 1px solid var(--primary); font-size: 14px; }
-        
-        .btn-claim { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 12px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(130, 71, 229, 0.4); }
-        .btn-claim:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(130, 71, 229, 0.6); }
-        .btn-claim:disabled { background: #333; cursor: not-allowed; box-shadow: none; }
-
-        .status-msg { margin-top: 20px; font-size: 13px; min-height: 20px; }
-        .back-link { display: block; margin-top: 25px; color: #8b8e9b; text-decoration: none; font-size: 14px; }
-        .back-link:hover { color: white; }
+        .token-logo { width: 100px; height: 100px; margin-bottom: 20px; filter: drop-shadow(0 0 10px var(--primary)); }
+        .balance-label { font-size: 14px; color: #8b8e9b; text-transform: uppercase; }
+        .balance-value { font-size: 42px; font-weight: bold; margin: 5px 0; color: #55ff55; }
+        .user-badge { background: #333; padding: 5px 15px; border-radius: 20px; font-size: 12px; margin-bottom: 20px; display: inline-block; }
+        .info-card { background: rgba(130, 71, 229, 0.1); border-radius: 12px; padding: 15px; margin: 15px 0; border: 1px solid var(--primary); font-size: 13px; }
+        .btn-claim { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-claim:disabled { background: #444; cursor: not-allowed; }
+        .status-msg { margin-top: 15px; font-size: 12px; color: #aaa; }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
+<div class="dashboard" id="mainContent">
     <img src="https://lelle-creator.github.io/eura-token/MineCrypto.png" alt="MineCrypto Logo" class="token-logo">
     
-    <div class="balance-label">Saldo Virtuale In-Game</div>
-    <div id="balance" class="balance-value">0.00</div>
-    <div style="color: #8b8e9b; margin-bottom: 20px;">MC</div>
+    <div id="userInfo" style="display:none;">
+        <div class="user-badge" id="displayNick">Caricamento...</div>
+        <div class="balance-label">Il tuo Saldo</div>
+        <div id="balance" class="balance-value">0.00</div>
+        <div style="color: #8b8e9b; margin-bottom: 15px;">MC</div>
+        
+        <div class="info-card">
+            <div>💰 Fee Prelievo: <b>20 MC</b></div>
+        </div>
 
-    <div class="info-card">
-        <div>💰 Fee Prelievo: <b>20 MC</b></div>
-        <div style="font-size: 11px; opacity: 0.8; margin-top: 5px;">Il gas in POL è a carico dell'utente</div>
+        <button id="claimBtn" class="btn-claim" onclick="preleva()">PRELEVA SU WALLET</button>
     </div>
 
-    <button id="claimBtn" class="btn-claim" onclick="preleva()">PRELEVA SU WALLET</button>
+    <div id="loginSection">
+        <h3>Benvenuto Esploratore</h3>
+        <p style="font-size: 14px; color: #8b8e9b;">Collega il tuo wallet per accedere al saldo in-game.</p>
+        <button class="btn-claim" onclick="connettiWallet()">CONNETTI METAMASK</button>
+    </div>
     
     <div id="status" class="status-msg"></div>
-    
-    <a href="index.html" class="back-link">← Torna al Portale</a>
+    <a href="index.html" style="display:block; margin-top:20px; color:#666; text-decoration:none; font-size:12px;">← Torna al Portale</a>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // TUA CONFIGURAZIONE FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyAfSwk5rVvdsnBN9bcSf1I0qbYs1eyJHE",
         databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com",
@@ -62,35 +59,71 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let userNick = ""; // Da recuperare tramite login o sessione
+    const contractAddress = "0xDcb8A657e39151D02C877299Db7790847174Af3a";
+    const contractABI = [
+        "function withdrawFee() view returns (uint256)",
+        "function claimTokens(address to, uint256 amount) public"
+    ];
+
+    let userNick = "";
+    let walletAddress = "";
     let saldoAttuale = 0;
 
-    // Esempio: Carica saldo (In produzione dovresti avere un sistema per sapere chi è l'utente loggato)
-    function caricaSaldo(nick) {
-        db.ref('utenti/' + nick.toLowerCase() + '/saldo_virtuale').on('value', (snapshot) => {
+    async function connettiWallet() {
+        const status = document.getElementById('status');
+        if (!window.ethereum) return alert("Installa MetaMask!");
+
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const accounts = await provider.send("eth_requestAccounts", []);
+            walletAddress = accounts[0].toLowerCase();
+            
+            status.innerText = "🔍 Verifica associazione wallet...";
+            
+            // CERCA L'INDIRIZZO NEL DATABASE
+            // Nota: Cerchiamo nel nodo 'wallet_to_nick' che link.html dovrà creare
+            db.ref('wallet_to_nick/' + walletAddress).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    userNick = snapshot.val();
+                    mostraDashboard();
+                } else {
+                    status.innerHTML = "❌ Wallet non collegato.<br><a href='link.html' style='color:white'>Vai qui per collegare il tuo account Minecraft</a>";
+                }
+            });
+        } catch (e) { status.innerText = "Errore: " + e.message; }
+    }
+
+    function mostraDashboard() {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('displayNick').innerText = "👤 " + userNick.toUpperCase();
+        
+        // Ascolta il saldo in tempo reale
+        db.ref('utenti/' + userNick.toLowerCase() + '/saldo_virtuale').on('value', (snapshot) => {
             saldoAttuale = snapshot.val() || 0;
             document.getElementById('balance').innerText = saldoAttuale.toFixed(2);
-            document.getElementById('claimBtn').disabled = (saldoAttuale <= 20);
+            document.getElementById('claimBtn').disabled = (saldoAttuale < 21); // Almeno 21 per coprire la fee
         });
     }
 
     async function preleva() {
         const status = document.getElementById('status');
         try {
-            status.innerText = "🔄 Firma la transazione su MetaMask...";
-            // LOGICA ETHERS.JS PER CHIAMARE IL CONTRATTO (da completare con l'indirizzo del nuovo contratto)
-            // Una volta confermata la TX:
-            // await db.ref('utenti/' + nick + '/saldo_virtuale').set(0);
-            status.innerHTML = "✅ <span style='color:#55ff55'>Token inviati con successo!</span>";
-        } catch (e) {
-            status.innerText = "❌ Errore: " + e.message;
-        }
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+            status.innerText = "🔄 Firma il prelievo su MetaMask...";
+            const amountToClaim = ethers.utils.parseUnits(saldoAttuale.toString(), 18);
+            
+            const tx = await contract.claimTokens(walletAddress, amountToClaim);
+            status.innerText = "⛏️ Transazione in corso...";
+            await tx.wait();
+
+            await db.ref('utenti/' + userNick.toLowerCase() + '/saldo_virtuale').set(0);
+            status.innerHTML = "✅ Token accreditati!";
+        } catch (e) { status.innerText = "❌ " + e.message; }
     }
-
-    // Per il test, chiediamo il nick (o lo prendiamo dal localStorage se lo hai salvato in link.html)
-    const savedNick = prompt("Inserisci il tuo Nickname Minecraft per vedere il saldo:");
-    if(savedNick) caricaSaldo(savedNick);
 </script>
-
 </body>
 </html>
