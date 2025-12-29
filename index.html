@@ -3,43 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scegli il tuo Token</title>
+    <title>MineCrypto Portal</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 50px 20px; background-color: #f4f4f9; }
         .grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 40px; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); width: 200px; transition: transform 0.3s; cursor: pointer; text-decoration: none; color: inherit; }
-        .card:hover { transform: translateY(-10px); }
-        img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 15px; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); width: 220px; transition: transform 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; }
+        .card:hover { transform: translateY(-10px); border: 2px solid #8247e5; }
+        img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 15px; image-rendering: pixelated; }
         h2 { margin: 10px 0; color: #8247e5; }
+        .icon-box { font-size: 50px; margin-bottom: 15px; }
+        .badge { background: #55ff55; color: black; font-size: 10px; padding: 5px 10px; border-radius: 10px; font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h1>Benvenuto nel Portale Multi-Token</h1>
-    <p>Seleziona la moneta che desideri gestire</p>
+    <h1>Benvenuto nel Portale MineCrypto</h1>
+    <p>Gestisci i tuoi token e collegati al server Minecraft</p>
 
     <div class="grid">
+        <a href="setup.html" class="card">
+            <div class="badge">NECESSARIO</div>
+            <div class="icon-box">⚙️</div>
+            <h2>Setup MC</h2>
+            <p>Configura Rete Amoy e Token MineCrypto</p>
+        </a>
+
+        <a href="link.html" class="card">
+            <div class="badge">NECESSARIO</div>
+            <div class="icon-box">🔗</div>
+            <h2>Collega Nick</h2>
+            <p>Associa il tuo Wallet al Nickname di gioco</p>
+        </a>
+
+        <a href="negozio.html" class="card">
+            <div class="icon-box">⛏️</div>
+            <h2>Shop Item</h2>
+            <p>Acquista materiali per il gioco</p>
+        </a>
+
         <a href="eura.html" class="card">
             <img src="https://lelle-creator.github.io/eura-token/eura-logo.png" alt="EURa">
             <h2>EURa</h2>
-            <p>Disponibile ora</p>
+            <p>Gestisci il tuo saldo EURa</p>
         </a>
 
-        <a href="eurb.html" class="card">
-            <img src="https://lelle-creator.github.io/eura-token/eurb-logo.png" style="filter: grayscale(100%);" alt="EURb">
-            <h2>EURb</h2>
-            <p style="color: #ff4757; font-weight: bold;">Coming Soon</p>
-        </a>
         <a href="donazioni.html" class="card">
-            <div style="font-size: 50px; margin-bottom: 15px;">🎁</div>
-            <h2>Supportaci</h2>
-            <p>Fai una donazione in EURa</p>
-        </a>
-        <a href="negozio.html" class="card">
-            <div style="font-size: 50px; margin-bottom: 15px;">⛏️</div>
-            <h2>Negozio M-Game</h2>
-            <p>Acquista item con EURa</p>
+            <div class="icon-box">🎁</div>
+            <h2>Supporto</h2>
+            <p>Sostieni il progetto con una donazione</p>
         </a>
     </div>
-    
 </body>
 </html>
