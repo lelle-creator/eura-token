@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stato Collegamento - MineCrypto</title>
+    
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    
     <style>
         :root { --primary: #8247e5; --bg: #0f111a; --card: #1a1d2b; --text: #ffffff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         .card { background: var(--card); border-radius: 24px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%; max-width: 450px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .status-icon { font-size: 50px; margin-bottom: 20px; }
         .btn { background: var(--primary); color: white; border: none; padding: 15px 25px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; margin-top: 20px; }
@@ -30,7 +32,7 @@
     <div id="instructions" class="info-box" style="display:none; text-align: left;">
         <b>Come collegarsi:</b><br>
         1. Entra nel server Minecraft.<br>
-        2. Digita: <code>/collega <il_tuo_wallet></code><br>
+        2. Digita: <code>/collega [tuo_wallet]</code><br>
         3. Torna qui e ricarica la pagina.
     </div>
 
@@ -41,22 +43,21 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // 1. Configurazione Firebase
+    // 3. Configurazione (Sistemata la punteggiatura che dava errore nel PDF)
     const firebaseConfig = {
-        apiKey: "AlzaSyAfSwk5rVvdsnBN9bcSf1l0qbYs1eyJHE", [cite: 531]
-        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com" [cite: 532]
+        apiKey: "AlzaSyAfSwk5rVvdsnBN9bcSf1l0qbYs1eyJHE", [cite: 1]
+        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com" [cite: 1]
     };
 
-    // 2. Inizializzazione sicura
     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig); [cite: 1]
     }
     const db = firebase.database();
 
     async function checkStatus() {
-        // 3. Controllo immediato della libreria ethers
+        // Verifica che ethers sia effettivamente pronto
         if (typeof ethers === 'undefined') {
-            alert("Errore: La libreria ethers non è stata caricata. Controlla la tua connessione internet.");
+            alert("La libreria per il wallet non è pronta. Ricarica la pagina.");
             return;
         }
 
@@ -66,33 +67,39 @@
         const icon = document.getElementById('icon');
         const instr = document.getElementById('instructions');
 
-        if (!window.ethereum) return alert("Per favore installa MetaMask!"); [cite: 541]
+        if (!window.ethereum) {
+            alert("Per favore installa MetaMask!");
+            return;
+        }
 
         try {
-            const provider = new ethers.providers.Web3Provider(window.ethereum); [cite: 543]
-            const accounts = await provider.send("eth_requestAccounts", []); [cite: 544]
-            const wallet = accounts[0].toLowerCase(); [cite: 545]
+            // Chiedi la connessione
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const accounts = await provider.send("eth_requestAccounts", []);
+            const wallet = accounts[0].toLowerCase();
 
-            title.innerText = "Ricerca associazione..."; [cite: 546]
+            title.innerText = "Ricerca associazione...";
             
-            db.ref('wallet_to_nick/' + wallet).once('value', (snapshot) => { [cite: 548]
+            // Cerca nel database 
+            db.ref('wallet_to_nick/' + wallet).once('value', (snapshot) => {
                 if (snapshot.exists()) {
-                    const nick = snapshot.val(); [cite: 550]
+                    const nick = snapshot.val();
                     icon.innerText = "✅";
-                    title.innerText = "Account Collegato!"; [cite: 553]
-                    desc.innerHTML = `Il tuo wallet è associato a: <b>${nick.toUpperCase()}</b>`; [cite: 554]
-                    content.innerHTML = `<a href="preleva.html" class="btn">VAI ALLA DASHBOARD</a>`; [cite: 555]
+                    title.innerText = "Account Collegato!";
+                    desc.innerHTML = `Il tuo wallet è associato a: <b>${nick.toUpperCase()}</b>`;
+                    content.innerHTML = `<a href="preleva.html" class="btn">VAI ALLA DASHBOARD</a>`;
                     instr.style.display = "none";
                 } else {
-                    icon.innerText = "❌"; [cite: 557]
-                    title.innerText = "Nessun Link Trovato"; [cite: 558]
-                    desc.innerText = "Questo wallet non è ancora associato a nessun account Minecraft."; [cite: 559]
-                    content.innerHTML = `<button onclick="checkStatus()" class="btn">RICONTROLLA</button>`; [cite: 560]
+                    icon.innerText = "❌";
+                    title.innerText = "Nessun Link Trovato";
+                    desc.innerText = "Questo wallet non è ancora associato a nessun account Minecraft.";
+                    content.innerHTML = `<button onclick="checkStatus()" class="btn">RICONTROLLA</button>`;
                     instr.style.display = "block";
                 }
             });
         } catch (e) {
-            alert("Errore: " + e.message); [cite: 564]
+            console.error(e);
+            alert("Errore durante la connessione: " + e.message);
         }
     }
 </script>
