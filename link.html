@@ -40,58 +40,59 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
-    // Configurazione corretta dell'oggetto
+    // 1. Configurazione Firebase
     const firebaseConfig = {
-        apiKey: "AlzaSyAfSwk5rVvdsnBN9bcSf1l0qbYs1eyJHE",
-        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com"
+        apiKey: "AlzaSyAfSwk5rVvdsnBN9bcSf1l0qbYs1eyJHE", [cite: 531]
+        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com" [cite: 532]
     };
 
-    // Inizializzazione corretta
+    // 2. Inizializzazione sicura
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.database();
 
     async function checkStatus() {
+        // 3. Controllo immediato della libreria ethers
+        if (typeof ethers === 'undefined') {
+            alert("Errore: La libreria ethers non è stata caricata. Controlla la tua connessione internet.");
+            return;
+        }
+
         const title = document.getElementById('title');
         const desc = document.getElementById('description');
         const content = document.getElementById('statusContent');
         const icon = document.getElementById('icon');
         const instr = document.getElementById('instructions');
 
-        if (!window.ethereum) return alert("Per favore installa MetaMask!");
+        if (!window.ethereum) return alert("Per favore installa MetaMask!"); [cite: 541]
 
         try {
-            // Assicurati che ethers sia caricato correttamente dal CDN
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const accounts = await provider.send("eth_requestAccounts", []);
-            const wallet = accounts[0].toLowerCase();
+            const provider = new ethers.providers.Web3Provider(window.ethereum); [cite: 543]
+            const accounts = await provider.send("eth_requestAccounts", []); [cite: 544]
+            const wallet = accounts[0].toLowerCase(); [cite: 545]
 
-            title.innerText = "Ricerca associazione...";
+            title.innerText = "Ricerca associazione..."; [cite: 546]
             
-            // Controllo nel database
-            db.ref('wallet_to_nick/' + wallet).once('value', (snapshot) => {
+            db.ref('wallet_to_nick/' + wallet).once('value', (snapshot) => { [cite: 548]
                 if (snapshot.exists()) {
-                    const nick = snapshot.val();
+                    const nick = snapshot.val(); [cite: 550]
                     icon.innerText = "✅";
-                    title.innerText = "Account Collegato!";
-                    desc.innerHTML = `Il tuo wallet è associato a: <b>${nick.toUpperCase()}</b>`;
-                    content.innerHTML = `<a href="preleva.html" class="btn">VAI ALLA DASHBOARD</a>`;
+                    title.innerText = "Account Collegato!"; [cite: 553]
+                    desc.innerHTML = `Il tuo wallet è associato a: <b>${nick.toUpperCase()}</b>`; [cite: 554]
+                    content.innerHTML = `<a href="preleva.html" class="btn">VAI ALLA DASHBOARD</a>`; [cite: 555]
                     instr.style.display = "none";
                 } else {
-                    icon.innerText = "❌";
-                    title.innerText = "Nessun Link Trovato";
-                    desc.innerText = "Questo wallet non è ancora associato a nessun account Minecraft.";
-                    content.innerHTML = `<button onclick="checkStatus()" class="btn">RICONTROLLA</button>`;
+                    icon.innerText = "❌"; [cite: 557]
+                    title.innerText = "Nessun Link Trovato"; [cite: 558]
+                    desc.innerText = "Questo wallet non è ancora associato a nessun account Minecraft."; [cite: 559]
+                    content.innerHTML = `<button onclick="checkStatus()" class="btn">RICONTROLLA</button>`; [cite: 560]
                     instr.style.display = "block";
                 }
             });
         } catch (e) {
-            alert("Errore: " + e.message);
+            alert("Errore: " + e.message); [cite: 564]
         }
     }
 </script>
