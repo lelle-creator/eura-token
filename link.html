@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stato Collegamento - MineCrypto</title>
     
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     
     <style>
         :root { --primary: #8247e5; --bg: #0f111a; --card: #1a1d2b; --text: #ffffff; }
@@ -43,63 +43,56 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // 3. Configurazione (Sistemata la punteggiatura che dava errore nel PDF)
+    // CORREZIONE CONFIGURAZIONE: Nota come le parentesi racchiudono tutto
     const firebaseConfig = {
-        apiKey: "AlzaSyAfSwk5rVvdsnBN9bcSf1l0qbYs1eyJHE", [cite: 1]
-        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com" [cite: 1]
+        apiKey: "AlzaSyAfSwk5rVvdsnBN9bcSf1l0qbYs1eyJHE",
+        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com"
     };
 
+    // Inizializzazione corretta
     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig); [cite: 1]
+        firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.database();
 
     async function checkStatus() {
-        // Verifica che ethers sia effettivamente pronto
+        // Se ethers non è caricato, questo eviterà il crash e ti avviserà
         if (typeof ethers === 'undefined') {
-            alert("La libreria per il wallet non è pronta. Ricarica la pagina.");
+            alert("Errore: Libreria ethers non caricata. Controlla la connessione.");
             return;
         }
 
         const title = document.getElementById('title');
         const desc = document.getElementById('description');
         const content = document.getElementById('statusContent');
-        const icon = document.getElementById('icon');
-        const instr = document.getElementById('instructions');
-
-        if (!window.ethereum) {
-            alert("Per favore installa MetaMask!");
-            return;
-        }
+        
+        if (!window.ethereum) return alert("Per favore installa MetaMask!");
 
         try {
-            // Chiedi la connessione
             const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const accounts = await provider.send("eth_requestAccounts", []);
-            const wallet = accounts[0].toLowerCase();
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const wallet = (await signer.getAddress()).toLowerCase();
 
             title.innerText = "Ricerca associazione...";
             
-            // Cerca nel database 
             db.ref('wallet_to_nick/' + wallet).once('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const nick = snapshot.val();
-                    icon.innerText = "✅";
+                    document.getElementById('icon').innerText = "✅";
                     title.innerText = "Account Collegato!";
                     desc.innerHTML = `Il tuo wallet è associato a: <b>${nick.toUpperCase()}</b>`;
                     content.innerHTML = `<a href="preleva.html" class="btn">VAI ALLA DASHBOARD</a>`;
-                    instr.style.display = "none";
                 } else {
-                    icon.innerText = "❌";
+                    document.getElementById('icon').innerText = "❌";
                     title.innerText = "Nessun Link Trovato";
-                    desc.innerText = "Questo wallet non è ancora associato a nessun account Minecraft.";
-                    content.innerHTML = `<button onclick="checkStatus()" class="btn">RICONTROLLA</button>`;
-                    instr.style.display = "block";
+                    desc.innerText = "Usa /collega in gioco con questo wallet.";
+                    document.getElementById('instructions').style.display = "block";
                 }
             });
         } catch (e) {
             console.error(e);
-            alert("Errore durante la connessione: " + e.message);
+            alert("Errore connessione: " + e.message);
         }
     }
 </script>
