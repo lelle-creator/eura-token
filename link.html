@@ -40,12 +40,20 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script>
+    // Configurazione corretta dell'oggetto
     const firebaseConfig = {
-        apiKey: "AIzaSyAfSwk5rVvdsnBN9bcSf1I0qbYs1eyJHE",
-        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com",
+        apiKey: "AlzaSyAfSwk5rVvdsnBN9bcSf1l0qbYs1eyJHE",
+        databaseURL: "https://eura-shop-minecraft-default-rtdb.firebaseio.com"
     };
-    firebase.initializeApp(firebaseConfig);
+
+    // Inizializzazione corretta
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.database();
 
     async function checkStatus() {
@@ -58,13 +66,14 @@
         if (!window.ethereum) return alert("Per favore installa MetaMask!");
 
         try {
+            // Assicurati che ethers sia caricato correttamente dal CDN
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const accounts = await provider.send("eth_requestAccounts", []);
             const wallet = accounts[0].toLowerCase();
 
             title.innerText = "Ricerca associazione...";
             
-            // Cerchiamo se il wallet esiste nell'indice creato dal bridge
+            // Controllo nel database
             db.ref('wallet_to_nick/' + wallet).once('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const nick = snapshot.val();
