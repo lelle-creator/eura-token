@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MineCrypto Bounty-Craft</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Stili Generali */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Nasconde le scrollbar se lo sfondo è troppo grande */
+            position: relative;
+        }
+
+        /* Sfondo con Villaggio Minecraft */
+        .background-village {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('minecraft_village_bounty.jpg'); /* Assicurati che il percorso sia corretto */
+            background-size: cover; /* Copre l'intera area */
+            background-position: center;
+            filter: brightness(0.4) blur(3px); /* Rende lo sfondo più scuro e sfocato */
+            z-index: -1; /* Mette lo sfondo dietro al contenuto */
+        }
+
+        /* Contenitore Principale della Bounty */
+        .bounty-container {
+            background: rgba(0, 0, 0, 0.7); /* Sfondo semi-trasparente per leggibilità */
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+            z-index: 1; /* Assicura che il contenuto sia sopra lo sfondo */
+            border: 2px solid #5d00a0; /* Bordo colorato */
+        }
+
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: #ffcc00; /* Giallo brillante */
+            margin-bottom: 20px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px #333;
+        }
+
+        .countdown {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.8em;
+            color: #00ff00; /* Verde acceso */
+            margin-bottom: 30px;
+            animation: pulse 1.5s infinite alternate; /* Effetto pulsazione */
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.03); }
+        }
+
+        .bounty-info {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: rgba(40, 0, 80, 0.8);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 10px;
+            min-width: 180px;
+            flex: 1;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid #7a00ff;
+        }
+
+        .info-card h3 {
+            color: #ffdd57;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .info-card p {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .deposit-section {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid #ffcc00;
+        }
+
+        .deposit-section h3 {
+            color: #ffcc00;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .deposit-input {
+            width: calc(100% - 120px);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #7a00ff;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 1.1em;
+            margin-right: 10px;
+        }
+        
+        .deposit-input::placeholder {
+            color: #aaa;
+        }
+
+        .btn {
+            background-color: #5d00a0;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #7a00ff;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            background-color: #333;
+            border-radius: 10px;
+            margin-top: 25px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%; /* Inizialmente 0% */
+            background-color: #00ff00; /* Verde */
+            border-radius: 10px;
+            text-align: center;
+            line-height: 30px;
+            color: #1a1a2e;
+            font-weight: bold;
+            transition: width 0.5s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+            z-index: 2; /* Sopra la barra */
+        }
+
+        .participants-list {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+            border: 1px solid #7a00ff;
+        }
+        
+        .participants-list h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .participant-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .participant-item:last-child {
+            border-bottom: none;
+        }
+
+        .participant-item .name {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .participant-item .crafts {
+            color: #00ff00;
+        }
+        .message-area {
+            margin-top: 20px;
+            color: #ff0000; /* Rosso per errori */
+            font-weight: bold;
+        }
+
+        /* Stili per il pulsante Home (torna al portale) */
+        .home-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #3a005c;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .home-button:hover {
+            background-color: #5d00a0;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-village"></div>
+
+    <div class="bounty-container">
+        <h1>MineCrypto Bounty-Craft</h1>
+        <p class="countdown" id="countdown">Caricamento...</p>
+
+        <div class="bounty-info">
+            <div class="info-card">
+                <h3>CRO in Palio</h3>
+                <p id="totalCro">50 CRO</p>
+            </div>
+            <div class="info-card">
+                <h3>Craft Totali Depositati</h3>
+                <p id="totalCrafts">2650 Craft</p>
+            </div>
+            <div class="info-card">
+                <h3>La Tua Quota</h3>
+                <p id="myShare">0 Craft (0.00%)</p>
+            </div>
+            <div class="info-card">
+                <h3>Premio Stimato</h3>
+                <p id="estimatedReward">0.00 CRO</p>
+            </div>
+        </div>
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-text" id="progressText">0% della tua partecipazione</div>
+        </div>
+
+        <div class="deposit-section">
+            <h3>Deposita i tuoi Craft</h3>
+            <input type="number" id="depositAmount" class="deposit-input" placeholder="Minimo 100 Craft" min="100">
+            <button class="btn" onclick="depositCrafts()">Deposita</button>
+            <p class="message-area" id="depositMessage"></p>
+        </div>
+
+        <div class="participants-list">
+            <h3>Partecipanti Attuali</h3>
+            <div id="participantsContent">
+                <p>Nessun partecipante ancora...</p>
+            </div>
+        </div>
+
+        <a href="index.html" class="home-button">← Torna al Portale</a>
+    </div>
+
+    <script type="module">
+        // Importa Firebase dalla tua configurazione esistente
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        // La tua configurazione Firebase (assicurati che sia la stessa usata nel bridge)
+        const firebaseConfig = {
+            apiKey: "TUA_API_KEY", // <-- SOSTITUISCI CON LA TUA API KEY
+            authDomain: "TUA_AUTH_DOMAIN",
+            databaseURL: "TUA_DATABASE_URL", // <-- SOSTITUISCI CON IL TUO DATABASE URL
+            projectId: "TUA_PROJECT_ID",
+            storageBucket: "TUA_STORAGE_BUCKET",
+            messagingSenderId: "TUA_MESSAGING_SENDER_ID",
+            appId: "TUA_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // --- Variabili Globali (o caricate dal login) ---
+        let currentWalletAddress = "0xYourMetamaskAddressHere"; // <-- SOSTITUISCI CON L'INDIRIZZO WALLET DELL'UTENTE (dal login)
+        let currentNickname = "ardea"; // <-- SOSTITUISCI CON IL NICKNAME DELL'UTENTE (dal login)
+        let userVirtualBalance = 0; // Saldo virtuale dell'utente
+
+        // --- Funzione per il conto alla rovescia ---
+        function updateCountdown(scadenzaISO) {
+            const countdownElement = document.getElementById('countdown');
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = new Date(scadenzaISO).getTime() - now;
+
+                if (distance < 0) {
+                    clearInterval(interval);
+                    countdownElement.innerHTML = "BOUNTY TERMINATO!";
+                    document.getElementById('depositAmount').disabled = true;
+                    document.getElementById('depositAmount').placeholder = "Bounty Terminata";
+                    document.querySelector('.deposit-section .btn').disabled = true;
+                    document.querySelector('.deposit-section .btn').textContent = "Terminato";
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                countdownElement.innerHTML = `Termina in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
+        }
+
+        // --- Funzione per aggiornare l'interfaccia con i dati del Bounty ---
+        function updateBountyUI(bountyData, userBalance) {
+            const totalCroElement = document.getElementById('totalCro');
+            const totalCraftsElement = document.getElementById('totalCrafts');
+            const myShareElement = document.getElementById('myShare');
+            const estimatedRewardElement = document.getElementById('estimatedReward');
+            const participantsContent = document.getElementById('participantsContent');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            const info = bountyData.info || {};
+            const partecipanti = bountyData.partecipanti || {};
+
+            const totalCro = info.premio_totale_cro || 0;
+            const totalCrafts = info.craft_totali_depositati || 0;
+            const userCraftsDeposited = partecipanti[currentNickname] || 0;
+
+            totalCroElement.textContent = `${totalCro} CRO`;
+            totalCraftsElement.textContent = `${totalCrafts} Craft`;
+
+            let myPercentage = 0;
+            let estimatedReward = 0;
+
+            if (totalCrafts > 0) {
+                myPercentage = (userCraftsDeposited / totalCrafts) * 100;
+                estimatedReward = (myPercentage / 100) * totalCro;
+            }
+
+            myShareElement.textContent = `${userCraftsDeposited} Craft (${myPercentage.toFixed(2)}%)`;
+            estimatedRewardElement.textContent = `${estimatedReward.toFixed(2)} CRO`;
+
+            progressBar.style.width = `${myPercentage.toFixed(2)}%`;
+            progressText.textContent = `${myPercentage.toFixed(2)}% della tua partecipazione`;
+
+
+            // Popola la lista dei partecipanti
+            participantsContent.innerHTML = '';
+            const sortedParticipants = Object.entries(partecipanti).sort(([, a], [, b]) => b - a); // Ordina dal più grande al più piccolo
+
+            if (sortedParticipants.length === 0) {
+                participantsContent.innerHTML = '<p>Nessun partecipante ancora...</p>';
+            } else {
+                sortedParticipants.forEach(([nick, crafts]) => {
+                    const item = document.createElement('div');
+                    item.className = 'participant-item';
+                    item.innerHTML = `
+                        <span class="name">${nick}</span>
+                        <span class="crafts">${crafts} Craft</span>
+                    `;
+                    participantsContent.appendChild(item);
+                });
+            }
+
+            // Aggiorna il conto alla rovescia se c'è una scadenza
+            if (info.scadenza) {
+                updateCountdown(info.scadenza);
+            }
+        }
+
+        // --- Funzione per il deposito di Craft ---
+        async function depositCrafts() {
+            const amountInput = document.getElementById('depositAmount');
+            const depositAmount = parseInt(amountInput.value);
+            const messageArea = document.getElementById('depositMessage');
+
+            messageArea.textContent = ''; // Resetta messaggi precedenti
+
+            if (isNaN(depositAmount) || depositAmount < 100) {
+                messageArea.textContent = 'Inserisci un valore valido (minimo 100 Craft).';
+                return;
+            }
+            if (depositAmount > userVirtualBalance) {
+                messageArea.textContent = `Non hai abbastanza Craft nel tuo saldo virtuale (${userVirtualBalance}).`;
+                return;
+            }
+            
+            // Disabilita il pulsante per prevenire doppi click
+            const depositBtn = document.querySelector('.deposit-section .btn');
+            depositBtn.disabled = true;
+            depositBtn.textContent = 'Depositando...';
+
+            try {
+                // Iniziamo una transazione per aggiornare il saldo virtuale dell'utente
+                const userRef = ref(database, 'utenti/' + currentNickname + '/saldo_virtuale');
+                await runTransaction(userRef, (currentBalance) => {
+                    if (currentBalance === null || currentBalance < depositAmount) {
+                        messageArea.textContent = 'Errore: Saldo virtuale insufficiente o non disponibile.';
+                        return undefined; // Annulla la transazione
+                    }
+                    return currentBalance - depositAmount; // Sottrai i Craft
+                });
+
+                // Aggiorniamo i Craft depositati nel bounty (incrementando)
+                const bountyParticipantsRef = ref(database, 'bounty_corrente/partecipanti/' + currentNickname);
+                await runTransaction(bountyParticipantsRef, (currentDeposited) => {
+                    return (currentDeposited || 0) + depositAmount;
+                });
+
+                // Aggiorniamo il totale Craft depositati nel bounty
+                const bountyTotalCraftsRef = ref(database, 'bounty_corrente/info/craft_totali_depositati');
+                await runTransaction(bountyTotalCraftsRef, (currentTotal) => {
+                    return (currentTotal || 0) + depositAmount;
+                });
+
+                messageArea.style.color = '#00ff00';
+                messageArea.textContent = `Hai depositato ${depositAmount} Craft nel Bounty!`;
+                amountInput.value = ''; // Pulisce l'input
+                userVirtualBalance -= depositAmount; // Aggiorna il saldo locale
+            } catch (error) {
+                console.error("Errore durante il deposito:", error);
+                messageArea.style.color = '#ff0000';
+                messageArea.textContent = 'Errore durante il deposito. Riprova.';
+            } finally {
+                depositBtn.disabled = false;
+                depositBtn.textContent = 'Deposita';
+            }
+        }
+
+        // --- Ascolto dei dati da Firebase ---
+        window.onload = () => {
+            // Ascolta il saldo virtuale dell'utente
+            const userBalanceRef = ref(database, 'utenti/' + currentNickname + '/saldo_virtuale');
+            onValue(userBalanceRef, (snapshot) => {
+                userVirtualBalance = snapshot.val() || 0;
+                // Non aggiorniamo l'UI qui, ma nella funzione bounty per coerenza
+            });
+
+            // Ascolta i dati del Bounty
+            const bountyRef = ref(database, 'bounty_corrente');
+            onValue(bountyRef, (snapshot) => {
+                const bountyData = snapshot.val();
+                updateBountyUI(bountyData, userVirtualBalance); // Passa il saldo aggiornato
+            });
+        };
+    </script>
+</body>
+</html>
