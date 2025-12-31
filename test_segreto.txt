@@ -1,2 +1,1 @@
-Questa è una chiave segreta di prova
-Questa è una chiave segreta di provaQuesta è una chiave segreta di prova
+test.segreto
